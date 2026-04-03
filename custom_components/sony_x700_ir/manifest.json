@@ -1,0 +1,12 @@
+{
+  "domain": "sony_x700_ir",
+  "name": "Sony X700 Infrared",
+  "version": "1.0.0",
+  "codeowners": ["@amasolov"],
+  "config_flow": true,
+  "dependencies": ["infrared"],
+  "documentation": "https://github.com/amasolov/ha-sony-x700-ir",
+  "issue_tracker": "https://github.com/amasolov/ha-sony-x700-ir/issues",
+  "integration_type": "device",
+  "iot_class": "assumed_state"
+}
