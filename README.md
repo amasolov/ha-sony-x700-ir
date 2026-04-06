@@ -47,8 +47,8 @@ Copy `custom_components/sony_x700_ir/` into your Home Assistant
 
 | Feature | IR code |
 |---|---|
-| Turn on | Power On (SIRC20 0xE2D2E) |
-| Turn off | Power Off (SIRC20 0xE2D2F) |
+| Turn on | Same learned burst as Power (toggle) until discrete on is captured |
+| Turn off | Same learned burst as Power (toggle) until discrete off is captured |
 | Play / Pause / Stop | Captured raw |
 | Previous / Next track | Chapter skip |
 
@@ -76,9 +76,10 @@ ESPHome `remote_receiver` on an M5Stack ATOM S3 Lite. The carrier frequency
 is **40 kHz** (Sony SIRC standard). Each command is transmitted **3 times**
 with a 25 ms inter-frame gap, matching the SIRC repeat convention.
 
-Power On and Power Off use generated SIRC20 timings from the
-[Rockabilly Sony Blu-ray code table](http://rockabilly.net/sony/Sony_bluray.htm)
-(device 26.226).
+**Power**, **Power On**, and **Power Off** all use the same learned raw burst (the
+green power key) until you capture discrete SIRC on/off codes from your remote and
+replace `POWER_ON` / `POWER_OFF` in `ir_codes.py`. The media player’s turn on/off
+then matches that behaviour.
 
 ## Contributing
 

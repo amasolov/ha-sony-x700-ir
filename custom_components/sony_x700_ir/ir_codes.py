@@ -1,17 +1,25 @@
 """Raw IR codes for Sony UBP-X700 Blu-ray player (RMT-VB201D remote).
 
-Codes captured via ESPHome remote_receiver from the physical remote.
-Format: ESPHome raw IR (positive = mark us, negative = space us).
-Carrier frequency: 40 kHz.
-Protocol: Sony SIRC20-compatible pulse-distance encoding, 20-bit frames.
+Source of truth
+  Almost all keys: learned with ESPHome ``remote_receiver`` from the **physical** remote
+  (Sony SIRC20, device 26.226 — same timing family as Rockabilly / HiFi-Remote tables).
+  You do **not** need to relearn these unless you change the IR path (receiver pin/invert),
+  the player stops responding, or you want to refresh noisy captures.
 
-Power On / Power Off generated from Rockabilly SIRC20 data (device 26.226)
-since those buttons were not raw-captured.
+Format: ESPHome-style raw (alternating mark/space µs; positive = mark, negative = space).
+Carrier: 40 kHz (Sony SIRC), passed through ``SonyX700Command`` / HA infrared emitter.
+
+Power On / Off
+  **Discrete** power (SIRC commands 46 / 47) were never stored as trustworthy raw captures
+  here. Until you learn them from the handset, **POWER_ON** and **POWER_OFF** reuse the
+  same burst as **POWER** (toggle). Replace those two members with fresh learns if your
+  player supports discrete on/off and you want ``turn_on`` / ``turn_off`` to differ from
+  the green power key behaviour.
 """
 
 from __future__ import annotations
 
-from enum import Enum, unique
+from enum import Enum
 from typing import override
 
 from infrared_protocols import Command, Timing
@@ -20,17 +28,19 @@ CARRIER_FREQ_HZ = 40_000
 REPEAT_COUNT = 2  # 3 total transmissions (SIRC standard)
 INTER_FRAME_GAP_US = 25_000
 
+# Learned RMT-VB201D power (toggle). Shared by POWER_ON / POWER_OFF until discrete 46/47 are captured.
+_POWER_TOGGLE_LEARNED: list[int] = [
+    -2355, 644, -1154, 644, -554, 644, -1156, 643, -554, 645, -1154, 642,
+    -555, 645, -579, 619, -557, 664, -1158, 618, -581, 618, -1154, 643,
+    -1156, 642, -579, 620, -1179, 619, -555, 645, -556, 642, -580, 621,
+    -1153, 643, -1154, 643, -1179,
+]
 
-@unique
+
 class SonyX700Code(Enum):
     """Sony X700 remote button codes (raw IR arrays)."""
 
-    POWER = [
-        -2355, 644, -1154, 644, -554, 644, -1156, 643, -554, 645, -1154, 642,
-        -555, 645, -579, 619, -557, 664, -1158, 618, -581, 618, -1154, 643,
-        -1156, 642, -579, 620, -1179, 619, -555, 645, -556, 642, -580, 621,
-        -1153, 643, -1154, 643, -1179,
-    ]
+    POWER = list(_POWER_TOGGLE_LEARNED)
     OPEN_CLOSE = [
         -2388, 612, -588, 634, -1191, 585, -1214, 608, -592, 585, -1186, 612,
         -613, 586, -614, 608, -588, 587, -1189, 610, -589, 610, -1216, 583,
@@ -169,20 +179,9 @@ class SonyX700Code(Enum):
         -1181, 617, -585, 614, -1184, 615, -583, 640, -561, 615, -585, 613,
         -1161, 641, -1207, 590, -1185,
     ]
-    # Generated from SIRC20 data 0xE2D2E (not raw-captured)
-    POWER_ON = [
-        -2400, 620, -560, 620, -1180, 620, -1180, 620, -1180, 620, -560,
-        620, -1180, 620, -560, 620, -560, 620, -1180, 620, -560, 620, -1180,
-        620, -1180, 620, -560, 620, -1180, 620, -560, 620, -560, 620, -560,
-        620, -1180, 620, -1180, 620, -1180,
-    ]
-    # Generated from SIRC20 data 0xE2D2F (not raw-captured)
-    POWER_OFF = [
-        -2400, 620, -1180, 620, -1180, 620, -1180, 620, -1180, 620, -560,
-        620, -1180, 620, -560, 620, -560, 620, -1180, 620, -560, 620, -1180,
-        620, -1180, 620, -560, 620, -1180, 620, -560, 620, -560, 620, -560,
-        620, -1180, 620, -1180, 620, -1180,
-    ]
+    # Discrete on/off: replace with learns from the real remote if 46/47 differ from toggle.
+    POWER_ON = list(_POWER_TOGGLE_LEARNED)
+    POWER_OFF = list(_POWER_TOGGLE_LEARNED)
 
 
 def _raw_to_timings(raw: list[int]) -> list[Timing]:
@@ -201,7 +200,7 @@ def _raw_to_timings(raw: list[int]) -> list[Timing]:
 
 
 class SonyX700Command(Command):
-    """IR command for a Sony X700 button (raw captured timings)."""
+    """IR command for a Sony X700 remote button (raw captured timings)."""
 
     def __init__(self, code: SonyX700Code) -> None:
         super().__init__(modulation=CARRIER_FREQ_HZ, repeat_count=REPEAT_COUNT)
