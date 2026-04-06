@@ -1,0 +1,50 @@
+{
+  "config": {
+    "abort": {
+      "already_configured": "This Sony Blu-ray player has already been configured with this transmitter.",
+      "no_emitters": "No infrared transmitter entities found. Please set up an ESPHome IR device first."
+    },
+    "step": {
+      "user": {
+        "data": {
+          "infrared_entity_id": "Infrared transmitter"
+        },
+        "data_description": {
+          "infrared_entity_id": "The infrared transmitter entity to use for sending commands to the Sony Blu-ray player."
+        },
+        "description": "Select the infrared transmitter entity to use for controlling your Sony UBP-X700.",
+        "title": "Set up Sony X700 IR"
+      }
+    }
+  },
+  "entity": {
+    "button": {
+      "power": { "name": "Power" },
+      "power_on": { "name": "Power on" },
+      "power_off": { "name": "Power off" },
+      "open_close": { "name": "Open/Close" },
+      "play": { "name": "Play" },
+      "pause": { "name": "Pause" },
+      "stop": { "name": "Stop" },
+      "rewind": { "name": "Rewind" },
+      "fast_forward": { "name": "Fast forward" },
+      "previous": { "name": "Previous" },
+      "next": { "name": "Next" },
+      "home": { "name": "Home" },
+      "top_menu": { "name": "Top menu" },
+      "menu": { "name": "Pop-up menu" },
+      "options": { "name": "Options" },
+      "return": { "name": "Return" },
+      "up": { "name": "Up" },
+      "down": { "name": "Down" },
+      "left": { "name": "Left" },
+      "right": { "name": "Right" },
+      "select": { "name": "Select" },
+      "subtitle": { "name": "Subtitle" },
+      "audio": { "name": "Audio" },
+      "display": { "name": "Display" },
+      "favourite": { "name": "Favourite" },
+      "netflix": { "name": "Netflix" }
+    }
+  }
+}
