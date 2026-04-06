@@ -173,6 +173,7 @@ async def async_setup_entry(
 class SonyX700Button(SonyX700IrEntity, ButtonEntity):
     """Sony X700 IR button entity."""
 
+    _attr_has_entity_name = False
     entity_description: SonyX700ButtonDescription
 
     def __init__(
