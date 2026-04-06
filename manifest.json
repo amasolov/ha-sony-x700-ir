@@ -1,0 +1,12 @@
+{
+  "domain": "sony_bluray_ir",
+  "name": "Sony Blu-ray Infrared",
+  "version": "1.0.0",
+  "codeowners": ["@amasolov"],
+  "config_flow": true,
+  "dependencies": ["infrared"],
+  "documentation": "https://github.com/amasolov/ha-sony-bluray-ir",
+  "issue_tracker": "https://github.com/amasolov/ha-sony-bluray-ir/issues",
+  "integration_type": "device",
+  "iot_class": "assumed_state"
+}
