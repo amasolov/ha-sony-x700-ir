@@ -1,13 +1,13 @@
 # Sony X700 Infrared for Home Assistant
 
-[![HACS](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
+[![HACS](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![Validate](https://github.com/amasolov/ha-sony-x700-ir/actions/workflows/validate.yml/badge.svg)](https://github.com/amasolov/ha-sony-x700-ir/actions/workflows/validate.yml)
 
 Control a **Sony UBP-X700** (and compatible Sony Blu-ray players) over infrared
 using Home Assistant's native [infrared entity platform](https://www.home-assistant.io/integrations/infrared/) (HA 2026.4+).
 
 The integration sends raw IR commands through any ESPHome-based IR emitter,
-giving you a proper **media player** entity and **26 button** entities for every
+giving you a proper **media player** entity and **24 button** entities for every
 key on the RMT-VB201D remote.
 
 ## Requirements
@@ -47,39 +47,38 @@ Copy `custom_components/sony_x700_ir/` into your Home Assistant
 
 | Feature | IR code |
 |---|---|
-| Turn on | Same learned burst as Power (toggle) until discrete on is captured |
-| Turn off | Same learned burst as Power (toggle) until discrete off is captured |
-| Play / Pause / Stop | Captured raw |
-| Previous / Next track | Chapter skip |
+| Turn on | Power toggle (SIRC20 command 21) |
+| Turn off | Power toggle (SIRC20 command 21) |
+| Play / Pause / Stop | SIRC20 |
+| Previous / Next track | Chapter skip (SIRC20) |
 
 The media player uses **assumed state** &mdash; IR is one-way so the player's
 actual state cannot be read back.
 
-### Buttons (26)
+### Buttons (24)
 
 | Button | Button | Button |
 |---|---|---|
-| Power | Power On | Power Off |
-| Open/Close | Play | Pause |
-| Stop | Rewind | Fast Forward |
-| Previous | Next | Home |
-| Top Menu | Pop-up Menu | Options |
-| Return | Up | Down |
-| Left | Right | Select |
-| Subtitle | Audio | Display |
-| Favourite | Netflix | |
+| Power | Open/Close | Play |
+| Pause | Stop | Rewind |
+| Fast Forward | Previous | Next |
+| Home | Top Menu | Pop-up Menu |
+| Options | Return | Up |
+| Down | Left | Right |
+| Select | Subtitle | Audio |
+| Display | Favourite | Netflix |
 
 ## IR codes
 
-All codes were captured from a genuine Sony RMT-VB201D remote using an
-ESPHome `remote_receiver` on an M5Stack ATOM S3 Lite. The carrier frequency
-is **40 kHz** (Sony SIRC standard). Each command is transmitted **3 times**
-with a 25 ms inter-frame gap, matching the SIRC repeat convention.
+All codes use the Sony SIRC20 protocol (20-bit variant, device 26,
+extended 226). The carrier frequency is **40 kHz** and each command is
+transmitted **3 times** with a 45 ms start-to-start period, matching the
+SIRC repeat convention.
 
-**Power**, **Power On**, and **Power Off** all use the same learned raw burst (the
-green power key) until you capture discrete SIRC on/off codes from your remote and
-replace `POWER_ON` / `POWER_OFF` in `ir_codes.py`. The media player’s turn on/off
-then matches that behaviour.
+The **Power** button sends a toggle command (SIRC20 command 21), matching
+the green power key on the physical remote. The media player's turn on/off
+both use this toggle since the Sony SIRC protocol does not define discrete
+on/off codes for this device.
 
 ## Contributing
 
