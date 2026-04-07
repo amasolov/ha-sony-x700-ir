@@ -187,15 +187,18 @@ class SonyX700Code(Enum):
 def _raw_to_timings(raw: list[int]) -> list[Timing]:
     """Convert an ESPHome-style raw IR array into Timing pairs.
 
-    The raw array starts with a negative gap, then alternates
-    positive (mark) / negative (space) values.
+    TSOP receivers are active-low: their output is LOW when IR carrier is
+    present (mark) and HIGH when absent (space).  ESPHome ``remote_receiver``
+    without ``inverted: true`` records LOW durations as negative and HIGH
+    durations as positive, so in the raw array **negative = mark** and
+    **positive = space**.  The arrays alternate neg/pos and typically end
+    with a trailing negative (the final mark with no measured space).
     """
-    values = raw[1:] if raw[0] < 0 else raw
     timings: list[Timing] = []
-    for i in range(0, len(values) - 1, 2):
-        timings.append(Timing(high_us=values[i], low_us=abs(values[i + 1])))
-    if len(values) % 2 == 1:
-        timings.append(Timing(high_us=values[-1], low_us=0))
+    for i in range(0, len(raw) - 1, 2):
+        timings.append(Timing(high_us=abs(raw[i]), low_us=raw[i + 1]))
+    if len(raw) % 2 == 1:
+        timings.append(Timing(high_us=abs(raw[-1]), low_us=0))
     return timings
 
 
