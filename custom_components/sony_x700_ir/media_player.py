@@ -51,11 +51,11 @@ class SonyX700MediaPlayer(SonyX700IrEntity, MediaPlayerEntity):
 
     async def async_turn_on(self) -> None:
         """Turn on the player."""
-        await self._send_command(SonyX700Code.POWER_ON)
+        await self._send_command(SonyX700Code.POWER)
 
     async def async_turn_off(self) -> None:
         """Turn off the player."""
-        await self._send_command(SonyX700Code.POWER_OFF)
+        await self._send_command(SonyX700Code.POWER)
 
     async def async_media_play(self) -> None:
         """Send play command."""

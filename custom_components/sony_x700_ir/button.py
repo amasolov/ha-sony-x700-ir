@@ -30,16 +30,6 @@ BUTTON_DESCRIPTIONS: tuple[SonyX700ButtonDescription, ...] = (
         command_code=SonyX700Code.POWER,
     ),
     SonyX700ButtonDescription(
-        key="power_on",
-        name="Power on",
-        command_code=SonyX700Code.POWER_ON,
-    ),
-    SonyX700ButtonDescription(
-        key="power_off",
-        name="Power off",
-        command_code=SonyX700Code.POWER_OFF,
-    ),
-    SonyX700ButtonDescription(
         key="open_close",
         name="Open/Close",
         command_code=SonyX700Code.OPEN_CLOSE,

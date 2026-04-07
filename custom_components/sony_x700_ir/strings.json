@@ -20,8 +20,6 @@
   "entity": {
     "button": {
       "power": { "name": "Power" },
-      "power_on": { "name": "Power on" },
-      "power_off": { "name": "Power off" },
       "open_close": { "name": "Open/Close" },
       "play": { "name": "Play" },
       "pause": { "name": "Pause" },

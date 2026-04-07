@@ -12,11 +12,9 @@ Protocol
 Device address
   device = 26, extended = 226  (Sony BD-player family).
 
-Power On / Off
-  Discrete power SIRC commands (46 / 47) are provided but may behave as
-  toggle on some firmware revisions.  If ``turn_on`` / ``turn_off`` must
-  differ from the green power key, verify commands 46/47 work with your
-  unit and set ``POWER_ON_CMD`` / ``POWER_OFF_CMD`` accordingly.
+Power
+  The media player ``turn_on`` / ``turn_off`` both send the power toggle
+  command (21), matching the green power key on the physical remote.
 """
 
 from __future__ import annotations
@@ -42,17 +40,10 @@ FRAME_PERIOD_US = 45_000  # start-to-start, per Sony spec
 DEVICE = 26
 EXTENDED = 226
 
-POWER_TOGGLE_CMD = 21
-POWER_ON_CMD = 46
-POWER_OFF_CMD = 47
-
-
 class SonyX700Code(Enum):
     """SIRC20 command numbers for the Sony UBP-X700 remote."""
 
-    POWER = POWER_TOGGLE_CMD
-    POWER_ON = POWER_ON_CMD
-    POWER_OFF = POWER_OFF_CMD
+    POWER = 21
     OPEN_CLOSE = 22
     PLAY = 26
     PAUSE = 25
