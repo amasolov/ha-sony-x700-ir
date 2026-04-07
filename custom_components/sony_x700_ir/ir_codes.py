@@ -25,7 +25,8 @@ from typing import override
 from infrared_protocols import Command, Timing
 
 CARRIER_FREQ_HZ = 40_000
-REPEAT_COUNT = 2  # 3 total transmissions (SIRC standard)
+REPEAT_COUNT = 7  # 8 total transmissions — well above the SIRC minimum of 3,
+# compensates for weak ESPHome IR LEDs vs. the original remote.
 INTER_FRAME_GAP_US = 25_000
 
 # Learned RMT-VB201D power (toggle). Shared by POWER_ON / POWER_OFF until discrete 46/47 are captured.
