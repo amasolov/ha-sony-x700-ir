@@ -22,7 +22,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import override
 
-from infrared_protocols import Command, Timing
+from infrared_protocols import Command
 
 # --- SIRC20 timing constants (µs) -------------------------------------------
 HEADER_MARK_US = 2400
@@ -39,6 +39,7 @@ FRAME_PERIOD_US = 45_000  # start-to-start, per Sony spec
 # --- Device address (shared by every button) ---------------------------------
 DEVICE = 26
 EXTENDED = 226
+
 
 class SonyX700Code(Enum):
     """SIRC20 command numbers for the Sony UBP-X700 remote."""
@@ -69,18 +70,19 @@ class SonyX700Code(Enum):
     NETFLIX = 75
 
 
-def _sirc20_frame(command: int, device: int, extended: int) -> list[Timing]:
-    """Build one SIRC20 frame with ideal timing."""
-    timings: list[Timing] = [Timing(high_us=HEADER_MARK_US, low_us=HEADER_SPACE_US)]
+def _sirc20_frame(command: int, device: int, extended: int) -> list[int]:
+    """Build one SIRC20 frame as signed-int timings (positive=pulse, negative=space)."""
+    timings: list[int] = [HEADER_MARK_US, -HEADER_SPACE_US]
 
     data = command | (device << 7) | (extended << 12)
     for _ in range(20):
         mark = ONE_MARK_US if (data & 1) else ZERO_MARK_US
-        timings.append(Timing(high_us=mark, low_us=BIT_SPACE_US))
+        timings.append(mark)
+        timings.append(-BIT_SPACE_US)
         data >>= 1
 
-    last = timings[-1]
-    timings[-1] = Timing(high_us=last.high_us, low_us=0)
+    # Remove trailing space — frame ends on the final pulse
+    timings.pop()
     return timings
 
 
@@ -90,14 +92,13 @@ class SonyX700Command(Command):
     def __init__(self, code: SonyX700Code) -> None:
         super().__init__(modulation=CARRIER_FREQ_HZ, repeat_count=FRAME_REPEAT)
         self._frame = _sirc20_frame(code.value, DEVICE, EXTENDED)
-        frame_duration = sum(t.high_us + t.low_us for t in self._frame)
+        frame_duration = sum(abs(t) for t in self._frame)
         self._inter_frame_gap = max(0, FRAME_PERIOD_US - frame_duration)
 
     @override
-    def get_raw_timings(self) -> list[Timing]:
+    def get_raw_timings(self) -> list[int]:
         timings = list(self._frame)
         for _ in range(self.repeat_count - 1):
-            last = timings[-1]
-            timings[-1] = Timing(high_us=last.high_us, low_us=self._inter_frame_gap)
+            timings.append(-self._inter_frame_gap)
             timings.extend(self._frame)
         return timings
