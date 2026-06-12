@@ -1,12 +1,13 @@
 {
   "domain": "sony_bluray_ir",
   "name": "Sony Blu-ray Infrared",
-  "version": "1.0.0",
+  "version": "1.3.0",
   "codeowners": ["@amasolov"],
   "config_flow": true,
   "dependencies": ["infrared"],
   "documentation": "https://github.com/amasolov/ha-sony-x700-ir",
   "issue_tracker": "https://github.com/amasolov/ha-sony-x700-ir/issues",
   "integration_type": "device",
-  "iot_class": "assumed_state"
+  "iot_class": "assumed_state",
+  "homeassistant": "2026.6.0"
 }

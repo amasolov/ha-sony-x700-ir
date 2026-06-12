@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import override
 
-from infrared_protocols import Command, Timing
+from infrared_protocols.commands import Command
 
 CARRIER_FREQ_HZ = 40_000
 REPEAT_COUNT = 2  # 3 total transmissions (SIRC standard)
@@ -185,19 +185,9 @@ class SonyBlurayCode(Enum):
     POWER_OFF = list(_POWER_TOGGLE_LEARNED)
 
 
-def _raw_to_timings(raw: list[int]) -> list[Timing]:
-    """Convert an ESPHome-style raw IR array into Timing pairs.
-
-    The raw array starts with a negative gap, then alternates
-    positive (mark) / negative (space) values.
-    """
-    values = raw[1:] if raw[0] < 0 else raw
-    timings: list[Timing] = []
-    for i in range(0, len(values) - 1, 2):
-        timings.append(Timing(high_us=values[i], low_us=abs(values[i + 1])))
-    if len(values) % 2 == 1:
-        timings.append(Timing(high_us=values[-1], low_us=0))
-    return timings
+def _strip_leading_gap(raw: list[int]) -> list[int]:
+    """Strip any leading gap (negative value) from an ESPHome-style raw array."""
+    return raw[1:] if raw and raw[0] < 0 else raw
 
 
 class SonyBlurayCommand(Command):
@@ -205,13 +195,15 @@ class SonyBlurayCommand(Command):
 
     def __init__(self, code: SonyBlurayCode) -> None:
         super().__init__(modulation=CARRIER_FREQ_HZ, repeat_count=REPEAT_COUNT)
-        self._single_frame = _raw_to_timings(code.value)
+        self._single_frame = _strip_leading_gap(code.value)
 
     @override
-    def get_raw_timings(self) -> list[Timing]:
+    def get_raw_timings(self) -> list[int]:
         timings = list(self._single_frame)
         for _ in range(self.repeat_count):
-            last = timings[-1]
-            timings[-1] = Timing(high_us=last.high_us, low_us=INTER_FRAME_GAP_US)
+            if timings[-1] > 0:
+                timings.append(-INTER_FRAME_GAP_US)
+            else:
+                timings[-1] = -INTER_FRAME_GAP_US
             timings.extend(self._single_frame)
         return timings
