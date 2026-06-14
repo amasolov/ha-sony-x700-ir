@@ -22,7 +22,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import override
 
-from infrared_protocols.commands import Command
+from infrared_protocols import Command
 
 # --- SIRC20 timing constants (µs) -------------------------------------------
 HEADER_MARK_US = 2400
